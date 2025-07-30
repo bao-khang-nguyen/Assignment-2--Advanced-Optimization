@@ -1,0 +1,51 @@
+import pygad
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+# This code is refenced from the PyGAD documentation: https://pygad.readthedocs.io/en/latest/ and adapted for the Rastrigin function optimization.
+
+#Define the Rastrigin function
+def ras(solution, solution_idx):
+    x, y = solution
+    return 20 + x**2 + y**2 - 10 * (np.cos(2 * np.pi * x) + np.cos(2 * np.pi * y))
+
+#Define the callback function for running GA
+def fitness_func(ga_instance, solution, solution_idx):
+    return -ras(solution, solution_idx)
+
+#Run the Genetic Algorithm optimization
+ga_instance = pygad.GA(
+    num_generations=100,
+    sol_per_pop=100,
+    num_genes=2,
+    fitness_func=fitness_func,
+    gene_space=[{'low': -5.12, 'high': 5.12},
+                {'low': -5.12, 'high': 5.12}],
+    num_parents_mating=10,
+    parent_selection_type="sss",
+    keep_parents=1,
+    crossover_type="single_point",
+    mutation_type="random",
+    mutation_percent_genes=10,
+    suppress_warnings=True
+)
+
+ga_instance.run()
+
+#Print the best solution
+solution, solution_fitness, solution_idx = ga_instance.best_solution()
+print("Parameters of the best solution : {solution}".format(solution=solution))
+print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
+
+#Save the result to a CSV file
+fitness_values = -np.array(ga_instance.best_solutions_fitness)
+file=pd.DataFrame({'Generation': np.arange(len(fitness_values)), 'Fitness': fitness_values})
+file.to_csv('GA Convergence.csv', index=False)
+
+#Plotting the convergence of the optimization
+plt.plot(-np.array(ga_instance.best_solutions_fitness))  
+plt.title("GA Convergence on Rastrigin Function")
+plt.xlabel("Generation")
+plt.ylabel(" Fitness ")
+plt.grid(True)
+plt.show()

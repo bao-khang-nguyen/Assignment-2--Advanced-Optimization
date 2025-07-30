@@ -1,0 +1,31 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pyswarms as ps
+import pandas as pd
+# Particle Swarm Optimization (PSO) for Rastrigin Function is referenced from the pws library documentation.
+#Link: https://pyswarms.readthedocs.io/en/latest/examples/tutorials/basic_optimization.html#Optimizing-a-function-with-bounds
+#define the Rastrigin function
+def ras(X):
+    x = X[:, 0]
+    y = X[:, 1]
+    return 20 + x**2 + y**2 - 10*(np.cos(2*np.pi*x) + np.cos(2*np.pi*y))
+
+#Define the parameters for PSO and run PSO
+options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+optimizer = ps.single.GlobalBestPSO(n_particles=100, dimensions=2, options=options,
+                                    bounds=([-5.12, -5.12], [5.12, 5.12]))
+cost,pos= optimizer.optimize(ras, iters=100)
+
+#Save the result to a CSV file
+file = pd.DataFrame({'Generation': np.arange(len(optimizer.cost_history)),'Fitness': optimizer.cost_history})
+file.to_csv('PSO Convergence.csv', index=False)
+
+#Plotting the convergence of the optimization
+plt.plot(optimizer.cost_history, label='Fitness', color='blue')
+plt.title('PSO Convergence  on Rastrigin Function')
+plt.xlabel('Generation')
+plt.ylabel('Fitness Value')
+plt.grid(True)
+plt.legend()
+plt.show()
+

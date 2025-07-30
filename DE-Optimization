@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import differential_evolution
+import pandas as pd
+# Rastrigin function optimization using Differential Evolution is refenced based on the manual from SciPy documentation.
+#Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
+
+#Define the Rastrigin function
+def ras(X):
+    x, y = X
+    return 20 + x**2 + y**2 - 10*(np.cos(2*np.pi*x) + np.cos(2*np.pi*y))
+
+convergence=[]
+
+# Callback function to record intermediate results for later plotting
+def record(intermediate_result):
+    convergence.append(intermediate_result.fun)
+    print(intermediate_result.x)
+
+    
+#Run Differential Evolution optimization
+result=differential_evolution(ras, bounds=[(-5.12, 5.12), (-5.12, 5.12)], maxiter=100, popsize=100,
+                              mutation=0.5, recombination=0.7,seed=1, callback=record)
+
+#Save the result to a CSV file
+file= pd.DataFrame({'Generation': np.arange(len(convergence)), 'Fitness': convergence})
+file.to_csv('DE Convergence.csv', index=False)
+
+# Plot the convergence of the optimization
+plt.plot(convergence, label='Fitness', color='blue')
+plt.title('Convergence of Differential Evolution on Rastrigin')
+plt.xlabel('Generation')
+plt.ylabel('Fitness')
+plt.ylim([0, 10])  
+plt.xlim([0, len(convergence)])
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
